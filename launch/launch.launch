@@ -1,0 +1,45 @@
+<launch>
+ <param name="use_sim_time" value="true" />
+ <param name="root_frame" value="world" />
+ <param name="child_frame" value="odom" />
+ 
+ <param name="latitude_reference" value="45.477669461666665" />
+ <param name="longitude_reference" value="9.22674018" />
+ <param name="altitude_reference" value="169.039" />
+
+ <node pkg="first_project" name="gps_to_odom" type="gps_to_odom"/>
+ <node pkg="first_project" name="lidar_remap" type="lidar_remap"/>
+
+ <node pkg="tf" type="static_transform_publisher" name="odom_to_rslidar" args="0 0 0 0 0 0 /ugv/odom rslidar 100"/>
+
+ <node pkg="slam_toolbox" type="async_slam_toolbox_node" name="slam_toolbox" output="screen">
+    <rosparam command="load" file="$(find first_project)/cfg/mapper_params_online_async.yaml" />
+    <remap from="scan" to="base_scan" />
+  </node>
+
+<node name="pointcloud_to_laserscan" pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" output="screen">
+       <remap from="/ugv/rslidar_points" to="cloud_in" /> <!-- TODO Forse è il contrario --> 
+        <remap from="scan" to="/scan" />
+       
+       <!-- Parameters -->
+       <param name="target_frame" value="world"/>
+       <param name="min_height" value="0.1"/>
+       <param name="max_height" value="1.0"/>
+       <param name="angle_min" value="-1.57"/>
+       <param name="angle_max" value="1.57"/>
+       <param name="angle_increment" value="0.01"/>
+       <param name="range_min" value="0.45"/>
+       <param name="range_max" value="10.0"/>
+       <param name="use_inf" value="true"/>
+</node>
+
+<group>
+    <node pkg="first_project" name="odom_to_tf" type="odom_to_tf">
+        <param name="child_frame" value="odom" />
+    </node>
+</group>
+    
+<arg name="rvizconfig" default="$(find first_project)/rviz/urdf.rviz" />
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+
+</launch>
