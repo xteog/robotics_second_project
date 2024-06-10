@@ -1,7 +1,7 @@
 <package format="2">
-    <name>first_project</name>
+    <name>second_project</name>
     <version>0.0.0</version>
-    <description>The first robotics project package</description>
+    <description>The second robotics project package</description>
     <maintainer email="matteo4.gallo@mail.polimi.it">Matteo Gallo</maintainer>
 
     <license>TODO</license>
