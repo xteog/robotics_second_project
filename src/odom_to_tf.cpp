@@ -17,7 +17,7 @@ public:
         tf::Transform transform;
         //n.getParam("root_frame", root);
         //nh_private.getParam("child_frame", child);
-        root = "map";
+        root = "odom_frame";
         child = "UGV_odom";
         transform.setOrigin(tf::Vector3(msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z));
         transform.setRotation(tf::Quaternion(

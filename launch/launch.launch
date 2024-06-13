@@ -9,12 +9,14 @@
 
 <node pkg="second_project" name="lidar_remap" type="lidar_remap"/>
 
+<!-- Static Transform Publisher between map and odom -->
+<!--  <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom_frame" args="0 0 0 0 0 0 map odom_frame" /> -->
 
  <!-- <node pkg="tf" type="static_transform_publisher" name="odom_to_rslidar" args="0 0 0 0 0 0 /ugv/odom rslidar 100"/> -->
 
  <node pkg="slam_toolbox" type="async_slam_toolbox_node" name="slam_toolbox" output="screen">
-    <rosparam command="load" file="$(find second_project)/cfg/mapper_params_online_async.yaml" />
-    <remap from="scan" to="base_scan" />
+    <rosparam command="load" file="$(find second_project)/cfg/mapper_params_online_async_default.yaml" />
+    <!-- <remap from="pointcloud_scan" to="base_scan" /> -->
   </node>
 
 <node name="pointcloud_to_laserscan" pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" output="screen">
@@ -25,14 +27,13 @@
        <param name="target_frame" value="UGV_odom"/>
        <param name="min_height" value="0.1"/>
        <param name="max_height" value="10.0"/>
-       <param name="angle_min" value="-180"/>
-       <param name="angle_max" value="180"/>
-       <param name="angle_increment" value="0.01"/>
+       <param name="angle_min" value="-3.14159"/>
+       <param name="angle_max" value="3.14159"/>
+       <param name="angle_increment" value="0.001745"/>
        <param name="range_min" value="0.45"/>
        <param name="range_max" value="10.0"/>
        <param name="use_inf" value="true"/>
 </node>
-
 
 <group>
     <node pkg="second_project" name="odom_to_tf" type="odom_to_tf">
