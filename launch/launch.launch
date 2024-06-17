@@ -8,6 +8,7 @@
  <param name="altitude_reference" value="169.039" />
 
 <node pkg="second_project" name="lidar_remap" type="lidar_remap"/>
+<node pkg="second_project" name="set_goals" type="set_goals" output="screen"/>
 
 <!-- Static Transform Publisher between map and odom -->
 <!--  <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom_frame" args="0 0 0 0 0 0 map odom_frame" /> -->
@@ -15,7 +16,7 @@
  <!-- <node pkg="tf" type="static_transform_publisher" name="odom_to_rslidar" args="0 0 0 0 0 0 /ugv/odom rslidar 100"/> -->
 
  <node pkg="slam_toolbox" type="async_slam_toolbox_node" name="slam_toolbox" output="screen">
-    <rosparam command="load" file="$(find second_project)/cfg/mapper_params_online_async_default.yaml" />
+    <rosparam command="load" file="$(find second_project)/cfg/mapper_params_online_async.yaml" />
     <!-- <remap from="pointcloud_scan" to="base_scan" /> -->
   </node>
 

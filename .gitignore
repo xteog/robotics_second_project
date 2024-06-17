@@ -1,2 +1,4 @@
 robotics2.bag
 /.vscode/
+/map/.posegraph
+/map/.data
