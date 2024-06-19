@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -25,17 +26,12 @@ public:
     {
         geometry_msgs::PoseStamped goal;
 
-        ROS_INFO("-2");
-        std::vector<std::vector<double>> data = readCSV("waypoints.csv");
-        ROS_INFO("-1");
+        std::vector<std::vector<double>> data = readCSV("/home/gallo/catkin_ws/src/robotics_second_project/waypoints.csv"); // TODO Relative path
 
-        for (int i = 0; i < 5; i++) // TODO vector size
+        for (int i = 0; i < data.size(); i++)
         {
-            ROS_INFO("0");
             goal = vectorToPose(data[i]);
-            ROS_INFO("0");
             pub.publish(goal);
-            ROS_INFO("0");
             ros::spinOnce();
         }
     }
@@ -46,6 +42,12 @@ std::vector<std::vector<double>> readCSV(const std::string &filename)
     std::vector<std::vector<double>> data;
 
     std::ifstream file(filename);
+
+    if (!file.is_open())
+    {
+        ROS_INFO("Failed to open file");
+        return data;
+    }
 
     std::string line;
     while (std::getline(file, line))
@@ -71,19 +73,13 @@ std::vector<std::vector<double>> readCSV(const std::string &filename)
 geometry_msgs::PoseStamped vectorToPose(const std::vector<double> &vector)
 {
     geometry_msgs::PoseStamped goal;
-    try
-    {
-        goal.header.frame_id = "map";
-        goal.header.stamp = ros::Time::now();
 
-        goal.pose.position.x = vector[0];
-        goal.pose.position.y = vector[1];
-        goal.pose.position.z = 0.0;
-    }
-    catch (const std::exception &exc)
-    {
-        ROS_ERROR_STREAM("Out of range error: " << exc.what());
-    }
+    goal.header.frame_id = "map";
+    goal.header.stamp = ros::Time::now();
+
+    goal.pose.position.x = vector[0];
+    goal.pose.position.y = vector[1];
+    goal.pose.position.z = 0.0;
 
     goal.pose.orientation.x = 0.0;
     goal.pose.orientation.y = 0.0;
@@ -95,7 +91,6 @@ geometry_msgs::PoseStamped vectorToPose(const std::vector<double> &vector)
 
 int main(int argc, char **argv)
 {
-    // Node name: odom_to_tf
     ros::init(argc, argv, "set_goals");
 
     set_goals node;
