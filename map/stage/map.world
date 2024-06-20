@@ -13,7 +13,7 @@ define floorplan model
   gui_outline 0
   gripper_return 0
   fiducial_return 0
-  ranger_return 1
+  laser_return 1
 )
 
 resolution 0.050000
@@ -30,15 +30,15 @@ window
 floorplan
 (
   name "map"
-  bitmap "map.png"
-  size [ 20.0 20.0 2.0 ]
-  pose [ 0.0 0.0 0.0 0.0 ]
+  bitmap "../map.png"
+  size [ 29.55 16.8 2.0 ]
+  pose [ -4.229837 -12.511770 0.0 0.0 ]
 )
 
 # throw in a robot
 turtlebot
 (
-  pose [ -7.50 5.5 0.0 0.0 ]
+  pose [ 0.0 0.0 0.0 0.0 ]
   name "turtlebot"
   color "black"
 )
