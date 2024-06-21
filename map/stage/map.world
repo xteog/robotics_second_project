@@ -32,7 +32,7 @@ floorplan
   name "map"
   bitmap "../map.png"
   size [ 29.55 16.8 2.0 ]
-  pose [ -4.229837 -12.511770 0.0 0.0 ]
+  pose [ 10.54 -4.1 0.0 0.0 ]
 )
 
 # throw in a robot

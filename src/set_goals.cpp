@@ -19,7 +19,7 @@ private:
 public:
     set_goals()
     {
-        pub = n.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal", 1);
+        pub = n.advertise<geometry_msgs::PoseStamped>("/move_base/current_goal", 1);
     }
 
     void publishWaypoints()
