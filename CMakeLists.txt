@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   dynamic_reconfigure
   geometry_msgs
+  actionlib
 )
 
 generate_dynamic_reconfigure_options(
