@@ -11,9 +11,10 @@ class ActionClient
 private:
     double timeout;
     Client client;
+
 public:
     ActionClient(double timeout) : client("move_base", true)
-    {   
+    {
         this->timeout = timeout;
         ROS_INFO("Waiting for action server to start.");
         client.waitForServer();
@@ -21,7 +22,7 @@ public:
 
     bool waitForResult()
     {
-        return client.waitForResult(ros::Duration(timeout));
+        return client.waitForResult(ros::Duration(this->timeout));
     }
 
     void sendGoal(geometry_msgs::PoseStamped &pose)

@@ -7,16 +7,14 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   nav_msgs
   tf
-  dynamic_reconfigure
   geometry_msgs
+  roslib
   actionlib
 )
 
-generate_dynamic_reconfigure_options(
-  cfg/parameters.cfg
+catkin_package(
+  CATKIN_DEPENDS roslib
 )
-
-catkin_package()
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 

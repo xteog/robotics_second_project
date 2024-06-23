@@ -20,7 +20,6 @@ public:
         transform.setRotation(tf::Quaternion(
             msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z, msg->pose.pose.orientation.w));
         br.sendTransform(tf::StampedTransform(transform, msg->header.stamp, root, child));
-
     }
 
 private:

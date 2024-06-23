@@ -7,7 +7,7 @@
 #include <string>
 #include <geometry_msgs/PoseStamped.h>
 #include "client_goals.cpp"
-#include<tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Quaternion.h>
 
 std::vector<std::vector<double>> readCSV(const std::string &);
 geometry_msgs::PoseStamped vectorToPose(const std::vector<double> &);
@@ -20,7 +20,7 @@ private:
     ActionClient client;
 
 public:
-    SetGoals() : client(getTimeout())  // Initialize the ActionClient with the timeout
+    SetGoals() : client(getTimeout())
     {
         pub = n.advertise<geometry_msgs::PoseStamped>("/move_base/current_goal", 1);
     }
@@ -36,7 +36,9 @@ public:
     {
         geometry_msgs::PoseStamped goal;
 
-        std::vector<std::vector<double>> data = readCSV("/home/gallo/catkin_ws/src/robotics_second_project/waypoints.csv"); // TODO Relative path
+        std::string path = ros::package::getPath("second_project");
+
+        std::vector<std::vector<double>> data = readCSV(path + "/waypoints.csv");
 
         for (int i = 0; i < data.size(); i++)
         {
@@ -44,7 +46,6 @@ public:
 
             client.sendGoal(goal);
             bool done = client.waitForResult();
-            ROS_INFO("ciao");
             ros::spinOnce();
         }
     }
@@ -58,7 +59,7 @@ std::vector<std::vector<double>> readCSV(const std::string &filename)
 
     if (!file.is_open())
     {
-        ROS_INFO("Failed to open file");
+        ROS_INFO("Failed to open waypoints file");
         return data;
     }
 

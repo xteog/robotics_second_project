@@ -1,49 +1,79 @@
+
 <launch>
- <param name="/use_sim_time" value="true" />
- <param name="root_frame" value="map" />
- <param name="child_frame" value="UGV_odom" />
- 
- <param name="latitude_reference" value="45.477669461666665" />
- <param name="longitude_reference" value="9.22674018" />
- <param name="altitude_reference" value="169.039" />
 
-<node pkg="second_project" name="lidar_remap" type="lidar_remap"/>
-<node pkg="second_project" name="set_goals" type="set_goals" output="screen"/>
+  <node pkg="second_project" name="set_goals" type="set_goals" output="screen">
+    <param name="timeout" value="60.0"/>
+    <param name="waypoints_path" value="/home/gallo/catkin_ws/src/robotics_second_project/waypoints.csv"/>
+  </node>
+  <arg name="base"       default="burger"/>  <!-- create_circles_asus_xtion_pro create_circles_kinect kobuki_hexagons_astra kobuki_hexagons_asus_xtion_pro kobuki_hexagons_asus_xtion_pro 
+kobuki_hexagons_kinect kobuki_hexagons_r200 roomba_circles_asus_xtion_pro roomba_circles_kinect -->
 
-<!-- Static Transform Publisher between map and odom -->
-<!--  <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom_frame" args="0 0 0 0 0 0 map odom_frame" /> -->
+  <!-- Name of the map to use and initial position -->
+  <arg name="map_file"       default="$(find second_project)/map/map.yaml"/> 
+  <arg name="world_file"     default="$(find second_project)/map/stage/map.world"/>
+  <arg name="initial_pose_x" default="0.0"/>
+  <arg name="initial_pose_y" default="0.0"/>
+  <arg name="initial_pose_a" default="0.0"/>
 
- <!-- <node pkg="tf" type="static_transform_publisher" name="odom_to_rslidar" args="0 0 0 0 0 0 /ugv/odom rslidar 100"/> -->
+  <arg name="odom_frame_id"   default="odom"/>
+  <arg name="global_frame_id" default="map"/>
 
- <node pkg="slam_toolbox" type="async_slam_toolbox_node" name="slam_toolbox" output="screen">
-    <rosparam command="load" file="$(find second_project)/cfg/mapper_params_online_async.yaml" />
-    <!-- <remap from="pointcloud_scan" to="base_scan" /> -->
+  <param name="/use_sim_time" value="true"/>
+
+
+ <!--  ***************** Robot simulation *****************  -->
+  <node pkg="stage_ros" type="stageros" name="stageros" args="$(arg world_file)">
+    <param name="base_watchdog_timeout" value="0.5"/>
+    <remap from="base_scan" to="scan"/>
   </node>
 
-<node name="pointcloud_to_laserscan" pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" output="screen">
-       <remap from="cloud_in" to="pointcloud_remapped" />
-       <remap from="scan" to="pointcloud_scan" />
-       
-       <!-- Parameters -->
-       <param name="target_frame" value="UGV_odom"/>
-       <param name="min_height" value="0.1"/>
-       <param name="max_height" value="10.0"/>
-       <param name="angle_min" value="-3.14159"/>
-       <param name="angle_max" value="3.14159"/>
-       <param name="angle_increment" value="0.001745"/>
-       <param name="range_min" value="0.45"/>
-       <param name="range_max" value="10.0"/>
-       <param name="use_inf" value="true"/>
-</node>
+  <!--  ***************** Robot Model *****************  -->
+  <include file="$(find turtlebot3_bringup)/launch/includes/description.launch.xml">
+    <arg name="model" value="$(arg base)" />
+  </include>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="false"/>
+  </node>
 
-<group>
-    <node pkg="second_project" name="odom_to_tf" type="odom_to_tf">
-        <param name="root_frame" value="map"/>
-        <param name="child_frame" value="UGV_odom"/>
-    </node>
-</group>
-    
-<arg name="rvizconfig" default="$(find second_project)/rviz/robot_mapping.rviz" />
-<node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
 
+  <!--  ************** Navigation  ***************  -->
+   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find second_project)/cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find second_project)/cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />   
+    <rosparam file="$(find second_project)/cfg/local_costmap_params.yaml" command="load" />   
+    <rosparam file="$(find second_project)/cfg/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find second_project)/cfg/dwa_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find second_project)/cfg/move_base_params.yaml" command="load" /> 
+
+    <param name="base_global_planner" value="navfn/NavfnROS" />  <!--   planner  navfn/NavfnROS alternative  carrot_planner/CarrotPlanner -->
+    <param name="planner_frequency" value="1.0" />
+    <param name="planner_patience" value="5.0" /> <!-- How long the planner will wait in seconds in an attempt to find a valid plan before space-clearing operations are performed.  -->
+
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+    <param name="controller_frequency" value="5.0" />
+    <param name="controller_patience" value="5.0" /> <!-- How long the controller will wait in seconds without receiving a valid control before space-clearing operations are performed.  -->
+
+    <param name="clearing_rotation_allowed" value="true"/> 
+  </node>
+
+
+  <!--  ****** Maps *****  -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)">
+    <param name="frame_id" value="map"/>
+  </node>
+
+
+  <!--  ****** amcl *****  -->
+  <include file="$(find second_project)/launch/amcl.launch.xml">
+    <arg name="scan_topic" value="scan"/>
+    <arg name="use_map_topic" value="true"/>
+    <arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
+    <arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
+    <arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
+  </include>
+
+
+  <!--  **************** Visualisation ****************  -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find second_project)/rviz/robot_navigation.rviz"/>
 </launch>
+

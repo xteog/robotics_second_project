@@ -2,9 +2,6 @@
 #include "std_msgs/String.h"
 #include <sensor_msgs/PointCloud2.h>
 
-#include <dynamic_reconfigure/server.h>
-#include <second_project/parametersConfig.h>
-
 class lidar_remap
 {
 public:
@@ -15,23 +12,18 @@ public:
         sub = n.subscribe<sensor_msgs::PointCloud2>("/ugv/rslidar_points", 1, &lidar_remap::subCallback, this);
     }
 
-
     void subCallback(const sensor_msgs::PointCloud2::ConstPtr &msg)
     {
         sensor_msgs::PointCloud2 modifiedMsg = *msg;
         modifiedMsg.header.frame_id = "UGV_odom";
         modifiedMsg.header.stamp = msg->header.stamp;
         pub.publish(modifiedMsg);
-
     }
 
 private:
     ros::NodeHandle n;
     ros::Subscriber sub;
     ros::Publisher pub;
-
-    dynamic_reconfigure::Server<second_project::parametersConfig> server;
-    dynamic_reconfigure::Server<second_project::parametersConfig>::CallbackType f;
 };
 
 int main(int argc, char **argv)
