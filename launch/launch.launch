@@ -43,7 +43,7 @@
     </node>
 </group>
     
-<arg name="rvizconfig" default="$(find second_project)/rviz/urdf.rviz" />
+<arg name="rvizconfig" default="$(find second_project)/rviz/robot_mapping.rviz" />
 <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
 
 </launch>
